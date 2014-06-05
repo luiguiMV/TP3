@@ -43,19 +43,19 @@ def procesar():
 def procesarVal(i,contador):
 	temp=[]
 	temp.append(i[contador])
-	contador+=1
+	++contador
 	if i[contador] == "=":
-		contador+=1
+		++contador
 		if tipodato(i[contador]) != "string":
 			temp.append(i[contador])
 			valores.append(temp)
 			if i[contador]=="(":
-				contador+=1
+				++contador
 				temp=[]
 				while i[contador]!=")":
 					temp.append(i[contador])
-					contador+=1
-				contador+=1
+					++contador
+				++contador
 	return contador
 
 ######################Funcion para crear una bandera auxiliar para cuando vienen varios parentesis en un Val###############################
