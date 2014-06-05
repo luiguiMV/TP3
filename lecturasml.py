@@ -1,6 +1,6 @@
 import re
 listalectura=[]#Lista que almacena todas las lineas leidas en el archivo SML en sublistas
-valores=[] #Lista que se almacena todos los valores y resultados para mostrar el resultado de estatico y dinamico
+valores=[["x",56],["y",2]] #Lista que se almacena todos los valores y resultados para mostrar el resultado de estatico y dinamico
 
 ######################funcion para leer el archivo SML#####################################
 def leerSML():
@@ -13,7 +13,7 @@ def leerSML():
 
 ##########################Funcion para crear las sublistas y agregarlas a la listalectura##################################
 def crearlista(linea):
-	temp=re.split(' |(;)|\n|([()])|(=)',linea )
+	temp=re.split(' |(;)|\n|([()])|(\W)',linea )
 	try:
 		while True:
 			temp.remove(None)
@@ -34,9 +34,7 @@ def procesar():
 		while indice<len(i):
 			bandera=determinarBandera(i)
 			if i[indice] == 'val':
-				indice=procesarVal(i,indice+1)
-			
-						
+				indice=procesarVal(i,indice+1)						
 			indice+=1
 			
 def asociarvalor():
@@ -45,20 +43,38 @@ def asociarvalor():
 def procesarVal(i,contador):
 	temp=[]
 	temp.append(i[contador])
-	++contador
+	contador+=1
 	if i[contador] == "=":
-		++contador
+		contador+=1
 		if tipodato(i[contador]) != "string":
 			temp.append(i[contador])
 			valores.append(temp)
 			if i[contador]=="(":
-				++contador
+				contador+=1
 				temp=[]
 				while i[contador]!=")":
 					temp.append(i[contador])
-					++contador
-				++contador
+					contador+=1
+				contador+=1
 	return contador
+	
+def evaluarExpresion(p1, operador, p2):#funcion que retorna la evaluacion de la expresion
+	if operador == '+':
+		return p1+p2
+	elif operador == '~':
+		return p1-p2
+	elif operador == '*':
+		return p1*p2
+	elif operador == '/':
+		return p1/p2
+	
+######################
+def getValor(variable):
+	for i in valores:
+		if i[0] == variable:
+			print i[1]
+			return
+	print "Variable "+variable+" no definida"
 
 ######################Funcion para crear una bandera auxiliar para cuando vienen varios parentesis en un Val###############################
 def determinarBandera(i):
@@ -69,7 +85,6 @@ def determinarBandera(i):
                         bandera+=1
                         e+=1
                 e+=1
-        print bandera
         return bandera
 	
 ##########################Funcion que enviara el resultado final a la pagina web y mostrar su resultado#####################################
@@ -102,7 +117,7 @@ def tipodato(dato):
 		return "string"
 ####################################Funcion de prueba para estar leyendo el contenido de las listas#####################################			
 def imprimir():
-	for i in valores:
+	for i in listalectura:
 		print i
 ######################################Funcion de prueba para leer el tipo de un numero (Funcion no usada)####################################
 def numero(strnum):
@@ -115,7 +130,8 @@ def numero(strnum):
 		print "Error"
 		
 		   
-leerSML()
-procesar()
-imprimir()
+#leerSML()
+#procesar()
+#getValor("z");
+#imprimir()
 #determinarBandera(["val","=","(","2","+","3",")","+","(","3","*",")"])
