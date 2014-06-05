@@ -100,7 +100,7 @@ def tipodato(dato):
 		return "string"
 ####################################Funcion de prueba para estar leyendo el contenido de las listas#####################################			
 def imprimir():
-	for i in listalectura:
+	for i in valores:
 		print i
 ######################################Funcion de prueba para leer el tipo de un numero (Funcion no usada)####################################
 def numero(strnum):
