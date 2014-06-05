@@ -39,7 +39,9 @@ def procesar():
 						
 			indice+=1
 			
-#def asociarvalor():
+def asociarvalor():
+	return 0
+	
 def procesarVal(i,contador):
 	temp=[]
 	temp.append(i[contador])
