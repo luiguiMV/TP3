@@ -1,15 +1,26 @@
 import re
-listalectura=[]#Lista que almacena todas las lineas leidas en el archivo SML en sublistas
 valores=[] #Lista que se almacena todos los valores y resultados para mostrar el resultado de estatico y dinamico
+
+
+
+###########################FUNCION PRINCIPAL##################################
+def main():
+	listalectura=leerSML()
+	#imprimir(listalectura)
+	procesar(listalectura)
+	
 
 ######################funcion para leer el archivo SML#####################################
 def leerSML():
+	listalectura=[] #Lista que va a contener todas las lineas leidas y spliteadas del .sml
 	archi=open('test.sml','r')
 	linea=archi.readline()
 	while linea!="":
-		crearlista(linea)
+		listalectura.append(crearlista(linea)) #Le concatena a listalectura toda las lineas leidas en el .sml
 		linea=archi.readline()
 	archi.close()
+	return crearLineaEvaluacion(listalectura) #retorna el resultado de la funcion crearLineaEvaluacion que devolvia una copia de ListaLectura modificada en sublistas
+	
 
 ##########################Funcion para crear las sublistas y agregarlas a la listalectura##################################
 def crearlista(linea):
@@ -24,22 +35,42 @@ def crearlista(linea):
 			temp.remove("")
 	except ValueError:
 		pass
-	listalectura.append(temp)
+	return temp #Lista que contiene todas las lineas del .sml
 
 
-##############################Funcion para procesar las listas#######################	
-def procesar():
+#######################################33##########Funcion para procesar las listas################################################	
+def procesar(listalectura):
 	for i in listalectura:
+		if i[0] == 'val':
+			procesarVal(i[1:])
+				
+def procesarVal(asignacion):
+	
+############################Funcion para crear listas por cada expresion dentro del .sml############################################
+def crearLineaEvaluacion(linea):
+	copia=[]
+	temp=[]
+	for i in linea: #recorre cada lista de linea la cual contiene una sublista por linea
 		indice=0
-		while indice<len(i):
-			bandera=determinarBandera(i)
-			if i[indice] == 'val':
-				indice=procesarVal(i,indice+1)
-			
-						
+		while indice<len(i)-1:#recorrre los valores de una sublista en i para crear una nueva lista independiente
+			if i[indice]==";":
+				copia.append(temp)
+				indice+=1
+				temp=[]
+			temp.append(i[indice])
 			indice+=1
+		if i != []:
+			copia.append(temp)
+			temp=[]
 			
-def procesarVal(i,contador):
+	return copia #retorna una lista con una copia de listalectura modificada
+	
+	
+	
+	
+	
+			
+def procesarVal2(i,contador):
 	temp=[]
 	temp2=0 #Valor que almancena los valores temporales de las operaciones aritmeticas hasta que llegue al ;
 	temp.append(i[contador])
@@ -47,7 +78,10 @@ def procesarVal(i,contador):
 	if i[contador] == "=":
 		contador+=1
 		while i[contador]!=";":
-			if tipodato(i[contador])!=str and tipodato(i[contador])!="signo" and tipodato(i[contador])!="variable":
+			if tipodato(i[contador])==bool:
+				temp2=getValor(i[contador])
+				contador+=1
+			elif tipodato(i[contador])!=str and tipodato(i[contador])!="signo" and tipodato(i[contador])!="variable":
 				temp2=eval(i[contador])
 				contador+=1
 			elif tipodato(i[contador])=="signo" and tipodato(i[contador+1])!=str:
@@ -109,8 +143,6 @@ def tipodato(dato):
 	try:
 		if dato=="+" or dato=="~" or dato=="div" or dato=="*":
 			return "signo"
-		elif dato=="true" or dato=="false":
-			return bool
 		elif type(eval(dato))==int:
 			return int
 		elif type(eval(dato))==float:
@@ -122,12 +154,15 @@ def tipodato(dato):
 		else:
 			return str
 	except NameError:
-		return "variable"
+		if dato=="true" or dato=="false":
+			return bool
+		else:
+			return "variable"
 	except SyntaxError:
 		return str
 ####################################Funcion de prueba para estar leyendo el contenido de las listas#####################################			
-def imprimir():
-	for i in listalectura:
+def imprimir(lista):
+	for i in lista:
 		print i
 ######################################Funcion de prueba para leer el tipo de un numero (Funcion no usada)####################################
 def numero(strnum):
@@ -140,7 +175,7 @@ def numero(strnum):
 		print "Error"
 		
 		   
-leerSML()
+main()
+#crearLineaEvaluacion([['val', 'x', '=', '666', ';', 'val', 'y', '=', '[', '2', ',', '3', ']', ';', 'val', 'z', '=', '(', '1', ',', '2', ')', ';', 'val', 'w', '=', 'true', ';']])
 #procesar()
-imprimir()
 #determinarBandera(["val","=","(","2","+","3",")","+","(","3","*",")"])
