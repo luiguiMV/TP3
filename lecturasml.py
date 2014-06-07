@@ -1,16 +1,13 @@
 import re
 valores=[] #Lista que se almacena todos los valores y resultados para mostrar el resultado de estatico y dinamico
-
-
-
+listalectura=[]
 ###########################FUNCION PRINCIPAL##################################
 ###Funcion principal que manejara el llamado de funciones
 def main():
 	listalectura=leerSML()
-	imprimir(listalectura)
-	#procesar(listalectura)
+	procesar(listalectura)
+	imprimir(valores)
 	
-
 ######################funcion para leer el archivo SML#####################################
 #Funcion para leer el archivo SML y procesarlo en listas para su interpretacion desde python:
 #Salida: una lista de listas por linea del SML
@@ -23,8 +20,7 @@ def leerSML():
 		linea=archi.readline()
 	archi.close()
 	return crearLineaEvaluacion(listalectura) #retorna el resultado de la funcion crearLineaEvaluacion que devolvia una copia de ListaLectura modificada en sublistas
-	
-
+		
 ##########################Funcion para crear las sublistas y agregarlas a la listalectura##################################
 ###Funcion para splitear una cadena de string
 ###Entrada: Una linea de string
@@ -42,43 +38,44 @@ def crearlista(linea):
 	except ValueError:
 		pass
 	return temp #Lista que contiene todas las lineas del .sml
-
-
-
+	
 #################################################Funcion para procesar las listas################################################	
 ### Funcion que recibe la lista ya ordenada para procesar cada linea de codigo en SML
 def procesar(listalectura):
 	for i in listalectura:
 		if i[0] == 'val':
 			variable=i[1]
-			res=procesarVal(i[2:])
-			valores.append([variable, res])
+			res=procesarVal(i[3:])
+			if estaEnValores(variable)==False:
+				valores.append([variable,res])
+			else:
+				for l in valores:
+					if variable in l:
+						l[1]=res
+				
 			
+def estaEnValores(variable):
+	for lista in valores:
+		if variable in lista:
+			return True
+	return False
+	
 #######################################################Funcion para procesar los Val###############################
 ###Funcion encargada de llamar a otras funciones para realizarle una operacion que sea necesaria a la asociacion
 ###Entrada: Una lista a evaluar para asociar
-###Salida: Una llamada a otra funcion		
+###Salida: Una llamada a otra funcion	
 def procesarVal(asignacion):
 	if asignacion[0]=="#":
-		procesarNumeral(asignacion)
-	elif asignacion[0]=="(":
-		return procesarParentesis(asignacion)
-	elif asignacion[0]=="[":
-		return procesarCorchete(asignacion)
-	elif asignacion[0]=="false" or asignacion[0]=="true":
-		return procesarBooleano(asignacion)
+		return procesarNumeral(asignacion)
+	elif asignacion[0]=='if':
+		return procesarIf(asignacion)
+	else:
+		res= concatenar(asignacion)
+		if stringOvariable(res)=="String":
+			return res
+		else:
+			return eval(res)
 
-
-################################################Funcion para procesar Numeral#############################################
-###Entrada:
-###Salida: 
-def procesarNumeral(lista):
-   temp=getValor(lista[2])
-   return temp[(lista[1])-1]
-
-
-		
-	
 ############################Funcion para crear listas por cada expresion dentro del .sml############################################
 def crearLineaEvaluacion(linea):
 	copia=[]
@@ -99,79 +96,41 @@ def crearLineaEvaluacion(linea):
 	return copia #retorna una lista con una copia de listalectura modificada
 	
 	
-	
-	
-	
-			
-def procesarVal2(i,contador):
-	temp=[]
-	temp2=0 #Valor que almancena los valores temporales de las operaciones aritmeticas hasta que llegue al ;
-	temp.append(i[contador])
-	contador+=1
-	if i[contador] == "=":
-		contador+=1
-		while i[contador]!=";":
-			if tipodato(i[contador])==bool:
-				temp2=getValor(i[contador])
-				contador+=1
-			elif tipodato(i[contador])!=str and tipodato(i[contador])!="signo" and tipodato(i[contador])!="variable":
-				temp2=eval(i[contador])
-				contador+=1
-			elif tipodato(i[contador])=="signo" and tipodato(i[contador+1])!=str:
-				if tipodato(i[contador+1])=="variable":
-					temp2=evaluarExpresion(temp2,i[contador],getValor(i[contador+1]))
-					contador+=2
-				else:
-					temp2=evaluarExpresion(temp2,i[contador],eval(i[contador+1]))
-					contador+=2
-			elif tipodato(i[contador])=="variable":
-				temp2=getValor(i[contador])
-				contador+=1	
-			else:
-				contador+=1
-				
-		temp.append(temp2) #guarda el resultado final de la operacion aritmetica en temp
-		valores.append(temp)	
-	return contador
-####################funcion que retorna la evaluacion de la expresion##############################33	
-def evaluarExpresion(p1, operador, p2):
-	if operador == '+':
-		return p1+p2
-	elif operador == '~':
-		return p1-p2
-	elif operador == '*':
-		return p1*p2
-	elif operador == 'div':
-		return p1/p2
-	
-######################Obterner el valor de la variable##################################
-def getValor(variable):
-	for i in valores:
-		if i[0] == variable:
-			return i[1]
-			
-	return "Variable "+variable+" no definida"
-######################Funcion para crear una bandera auxiliar para cuando vienen varios parentesis en un Val###############################
-def determinarBandera(i):
-        bandera=0
-        e=0
-        while e<len(i):
-                if i[e] == "(":
-                        bandera+=1
-                        e+=1
-                e+=1
-        return bandera
-	
-##########################Funcion que enviara el resultado final a la pagina web y mostrar su resultado#####################################
-def resultado():
-	contador=0
-	while contador<len(listalectura[0]):
-		if listalectura[0][contador]=="val":
-			print(listalectura[0][contador+3])
-			print "* Static Environtment: "+listalectura[0][contador+1] + " : " + tipodato(listalectura[0][contador+3]) + "*"
-		contador+=1
-	#if cadena.find()
-####################################Funcin que analiza el tipo de dato que contiene los elementos dentro de valor##############################
+################################################Funcion para procesar Numeral#############################################
+###Entrada:
+###Salida: 
+def procesarNumeral(lista):
+   temp=getValor(lista[2])
+   return temp[eval((lista[1]))-1]
+ 
+####################################Funcion de prueba para estar leyendo el contenido de las listas#####################################		
+def imprimir(lista):
+	for i in lista:
+		print i
+		
+#######################################FUNCION CONCATENAR
+def concatenar(lista):
+    tipo=""
+    temp=""
+    for i in lista:
+        tipo=tipodato(i)
+        if tipo != "variable" and tipo != "signo":
+            temp+=i
+        else:
+            if tipo =="signo":
+                if tipo == "~":
+                    temp+="-"
+                elif i == "div":
+                    temp+="/"
+                else:
+                    temp+=i
+            else:
+                if tipo == "variable":
+                    temp+=str(getValor(i))
+                else:
+                    temp+=i
+    return temp
+
 def tipodato(dato):
     try:
         if dato=="+" or dato=="~" or dato=="div" or dato=="*":
@@ -193,28 +152,28 @@ def tipodato(dato):
             return stringOvariable(dato)
     except SyntaxError:
 	    return str
-
+	    
+	    
+	    
 def stringOvariable(dato): 
     for i in valores:
         if dato in i:
             return "variable"
     return "String"
-####################################Funcion de prueba para estar leyendo el contenido de las listas#####################################			
-def imprimir(lista):
-	for i in lista:
-		print i
-######################################Funcion de prueba para leer el tipo de un numero (Funcion no usada)####################################
-def numero(strnum):
-	try:
-		if(float(strnum)%1==0):
-			return int(strnum)
-		else:
-			return float(strnum)	
-	except ValueError:
-		print "Error"
-		
-		   
+	    
+def getValor(variable):
+	for i in valores:
+		if i[0] == variable:
+			return i[1]
+			
+	return "Variable "+variable+" no definida"
+	
+	
+###FUNCION PROCESAR IF
+##Recibe: lista que empieza con 'if'
+##Salida: retorna el resultado del if
+##def procesarIf(lista):
+	
+
+
 main()
-#crearLineaEvaluacion([['val', 'x', '=', '666', ';', 'val', 'y', '=', '[', '2', ',', '3', ']', ';', 'val', 'z', '=', '(', '1', ',', '2', ')', ';', 'val', 'w', '=', 'true', ';']])
-#procesar()
-#determinarBandera(["val","=","(","2","+","3",")","+","(","3","*",")"])
