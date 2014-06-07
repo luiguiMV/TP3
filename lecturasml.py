@@ -1,19 +1,41 @@
 import re
 valores=[] #Lista que se almacena todos los valores y resultados para mostrar el resultado de estatico y dinamico
 listalectura=[]
-###########################FUNCION PRINCIPAL##################################
-###Funcion principal que manejara el llamado de funciones
-def main():
-	listalectura=leerSML()
+aE = []
+aD = []
+
+def ejecutar(nombre):
+	listalectura=leerSML(nombre)
 	procesar(listalectura)
-	imprimir(valores)
+	clasificacion(valores)
+	
+def getAmbienteEstatico():
+	return aE
+
+def getAmbienteDinamico():
+	return aD
+
+def clasificacion(valores): 
+	cont=0 
+	while cont<len(valores): 
+		x=valores[cont][0] 
+		y=valores[cont][1] 
+		if y=="true": 
+			y=True 
+		elif y=="false": 
+			y=False 
+		z=type(y)
+		aE.append(str(x)+" "+str(z))
+		aD.append(str(x)+"="+str(y)) 
+		cont+=1
+
 	
 ######################funcion para leer el archivo SML#####################################
 #Funcion para leer el archivo SML y procesarlo en listas para su interpretacion desde python:
 #Salida: una lista de listas por linea del SML
-def leerSML():
+def leerSML(nombrearchivo):
 	listalectura=[] #Lista que va a contener todas las lineas leidas y spliteadas del .sml
-	archi=open('test.sml','r')
+	archi=open('uploads/'+nombrearchivo,'r')
 	linea=archi.readline()
 	while linea!="":
 		listalectura.append(crearlista(linea)) #Le concatena a listalectura toda las lineas leidas en el .sml
@@ -71,7 +93,7 @@ def procesarVal(asignacion):
 		return procesarIf(asignacion)
 	else:
 		res= concatenar(asignacion)
-		if stringOvariable(res)=="String":
+		if stringOvariable(res)!="String":
 			return res
 		else:
 			return eval(res)
@@ -122,6 +144,8 @@ def concatenar(lista):
                     temp+="-"
                 elif i == "div":
                     temp+="/"
+                elif i == "=":
+					temp+="=="
                 else:
                     temp+=i
             else:
@@ -133,7 +157,7 @@ def concatenar(lista):
 
 def tipodato(dato):
     try:
-        if dato=="+" or dato=="~" or dato=="div" or dato=="*":
+        if dato=="+" or dato=="~" or dato=="div" or dato=="*" or dato=="=":
             return "signo"
         elif type(eval(dato))==int:
             return int
@@ -172,8 +196,25 @@ def getValor(variable):
 ###FUNCION PROCESAR IF
 ##Recibe: lista que empieza con 'if'
 ##Salida: retorna el resultado del if
-##def procesarIf(lista):
-	
+def procesarIf(lista):
+	i=1;
+	condicion = []
+	caso1=[]
+	caso2=[]
+	while lista[i] != 'then':
+		condicion.append(lista[i])
+		i+=1
+	i+=1
+	while lista[i] != 'else':
+		caso1.append(lista[i])
+		i+=1
+	i+=1
+	while i < len(lista):
+		caso2.append(lista[i])
+		i+=1
+		
+	if eval(concatenar(condicion)):
+		return eval(concatenar(caso1))
+	else:
+		return eval(concatenar(caso2))
 
-
-main()
