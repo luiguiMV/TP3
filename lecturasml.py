@@ -4,6 +4,7 @@ valores=[] #Lista que se almacena todos los valores y resultados para mostrar el
 
 
 ###########################FUNCION PRINCIPAL##################################
+###Funcion principal que manejara el llamado de funciones
 def main():
 	listalectura=leerSML()
 	imprimir(listalectura)
@@ -11,6 +12,8 @@ def main():
 	
 
 ######################funcion para leer el archivo SML#####################################
+#Funcion para leer el archivo SML y procesarlo en listas para su interpretacion desde python:
+#Salida: una lista de listas por linea del SML
 def leerSML():
 	listalectura=[] #Lista que va a contener todas las lineas leidas y spliteadas del .sml
 	archi=open('test.sml','r')
@@ -23,6 +26,9 @@ def leerSML():
 	
 
 ##########################Funcion para crear las sublistas y agregarlas a la listalectura##################################
+###Funcion para splitear una cadena de string
+###Entrada: Una linea de string
+###Retorna una lista con los string spliteados
 def crearlista(linea):
 	temp=re.split(' |(;)|\n|([()])|(\W)',linea )
 	try:
@@ -38,17 +44,23 @@ def crearlista(linea):
 	return temp #Lista que contiene todas las lineas del .sml
 
 
-#######################################33##########Funcion para procesar las listas################################################	
+
+#################################################Funcion para procesar las listas################################################	
+### Funcion que recibe la lista ya ordenada para procesar cada linea de codigo en SML
 def procesar(listalectura):
 	for i in listalectura:
 		if i[0] == 'val':
 			variable=i[1]
 			res=procesarVal(i[2:])
 			valores.append([variable, res])
-				
+			
+#######################################################Funcion para procesar los Val###############################
+###Funcion encargada de llamar a otras funciones para realizarle una operacion que sea necesaria a la asociacion
+###Entrada: Una lista a evaluar para asociar
+###Salida: Una llamada a otra funcion		
 def procesarVal(asignacion):
 	if asignacion[0]=="#":
-		return procesarNumeral(asignacion)
+		procesarNumeral(asignacion)
 	elif asignacion[0]=="(":
 		return procesarParentesis(asignacion)
 	elif asignacion[0]=="[":
@@ -57,10 +69,14 @@ def procesarVal(asignacion):
 		return procesarBooleano(asignacion)
 
 
-
+################################################Funcion para procesar Numeral#############################################
+###Entrada:
+###Salida: 
 def procesarNumeral(lista):
-   temp=getValor[lista[2]]
-   return temp[lista[1]-1]
+   temp=getValor(lista[2])
+   return temp[(lista[1])-1]
+
+
 		
 	
 ############################Funcion para crear listas por cada expresion dentro del .sml############################################
@@ -157,26 +173,32 @@ def resultado():
 	#if cadena.find()
 ####################################Funcin que analiza el tipo de dato que contiene los elementos dentro de valor##############################
 def tipodato(dato):
-	try:
-		if dato=="+" or dato=="~" or dato=="div" or dato=="*":
-			return "signo"
-		elif type(eval(dato))==int:
-			return int
-		elif type(eval(dato))==float:
-			return float
-		elif type(eval(dato))==tuple:
-			return tuple
-		elif type(eval(dato))==list:
-			return list
-		else:
-			return str
-	except NameError:
-		if dato=="true" or dato=="false":
-			return bool
-		else:
-			return "variable"
-	except SyntaxError:
-		return str
+    try:
+        if dato=="+" or dato=="~" or dato=="div" or dato=="*":
+            return "signo"
+        elif type(eval(dato))==int:
+            return int
+        elif type(eval(dato))==float:
+            return float
+        elif type(eval(dato))==tuple:
+            return tuple
+        elif type(eval(dato))==list:
+            return list
+        else:
+            return str
+    except NameError:
+        if dato=="true" or dato=="false":
+            return bool
+        else:
+            return stringOvariable(dato)
+    except SyntaxError:
+	    return str
+
+def stringOvariable(dato): 
+    for i in valores:
+        if dato in i:
+            return "variable"
+    return "String"
 ####################################Funcion de prueba para estar leyendo el contenido de las listas#####################################			
 def imprimir(lista):
 	for i in lista:
