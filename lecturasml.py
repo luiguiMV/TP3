@@ -24,8 +24,8 @@ def clasificacion(valores):
 			y=True 
 		elif y=="false": 
 			y=False 
-		z=type(y)
-		aE.append(str(x)+" "+str(z))
+		z=mostrarTipo(y)
+		aE.append(str(x)+": "+str(z))
 		aD.append(str(x)+"="+str(y)) 
 		cont+=1
 
@@ -91,6 +91,10 @@ def procesarVal(asignacion):
 		return procesarNumeral(asignacion)
 	elif asignacion[0]=='if':
 		return procesarIf(asignacion)
+	elif asignacion[0]=='hd':
+		return hd(asignacion[1])
+	elif asignacion[0]=='tl':
+		return tl(asignacion[1])
 	else:
 		res= concatenar(asignacion)
 		if stringOvariable(res)!="String":
@@ -213,8 +217,67 @@ def procesarIf(lista):
 		caso2.append(lista[i])
 		i+=1
 		
-	if eval(concatenar(condicion)):
+	if procesarVal(condicion):
 		return eval(concatenar(caso1))
 	else:
 		return eval(concatenar(caso2))
 
+############################
+def mostrarTipo(exp):
+    if type(exp)==tuple:
+        return obtenertipoTupla(exp)
+    elif type(exp)==list:
+        return obtenertipoLista(exp)
+    else:
+        return str(tipodato(str(exp)))
+        
+def obtenertipoLista(lista):
+    cadena=""
+    if tipodato(str(lista[0]))==int:
+        cadena+=" int"
+    elif tipodato(str(lista[0]))==float:
+        cadena+=" float"
+    elif tipodato(str(lista[0]))==tuple:
+        cadena+=" tuple"
+    elif tipodato(str(lista[0]))==list:
+        cadena+=obtenertipoLista(lista[0])
+    else:
+        cadena+=" String"
+        
+    return cadena +" list "
+
+def obtenertipoTupla(tupla):
+    contador=0
+    cadena= " "
+    while contador!=len(tupla):
+        if tipodato(str(tupla[contador]))==int:
+            cadena+=" int"
+            contador+=1
+            cadena+=" *"
+        elif tipodato(str(tupla[contador]))==float:
+            cadena+=" float "
+            contador+=1
+            cadena+= " *"
+        elif tipodato(str(tupla[contador]))==tuple:
+            cadena+="( " + obtenertipoTupla(tupla[contador]) +" ) "
+            contador+=1
+            cadena+=" *"
+        elif tipodato(str(tupla[contador]))==list:
+            cadena+=obtenertipoLista(tupla[contador])+ " "
+            contador+=1
+            cadena+=" *"
+        else:
+            cadena+=" String "
+            contador+=1
+            cadena+=" *"
+    return cadena
+    
+def hd(nomLista): 
+	if nomlista == '[':
+		print "lista"
+	lista=getValor(nomLista) 
+	return lista[0] 
+	
+def tl(nomLista): 
+	lista=getValor(nomLista) 
+	return lista[1:]
