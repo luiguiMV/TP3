@@ -6,8 +6,8 @@ valores=[] #Lista que se almacena todos los valores y resultados para mostrar el
 ###########################FUNCION PRINCIPAL##################################
 def main():
 	listalectura=leerSML()
-	#imprimir(listalectura)
-	procesar(listalectura)
+	imprimir(listalectura)
+	#procesar(listalectura)
 	
 
 ######################funcion para leer el archivo SML#####################################
@@ -42,9 +42,26 @@ def crearlista(linea):
 def procesar(listalectura):
 	for i in listalectura:
 		if i[0] == 'val':
-			procesarVal(i[1:])
+			variable=i[1]
+			res=procesarVal(i[2:])
+			valores.append([variable, res])
 				
 def procesarVal(asignacion):
+	if asignacion[0]=="#":
+		return procesarNumeral(asignacion)
+	elif asignacion[0]=="(":
+		return procesarParentesis(asignacion)
+	elif asignacion[0]=="[":
+		return procesarCorchete(asignacion)
+	elif asignacion[0]=="false" or asignacion[0]=="true":
+		return procesarBooleano(asignacion)
+
+
+
+def procesarNumeral(lista):
+   temp=getValor[lista[2]]
+   return temp[lista[1]-1]
+		
 	
 ############################Funcion para crear listas por cada expresion dentro del .sml############################################
 def crearLineaEvaluacion(linea):
